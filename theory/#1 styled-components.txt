@@ -1,0 +1,39 @@
+yarn add styled-components  로 설치
+
+사용하려면 import styled from "styled-components";
+
+const Apple = styled.button`
+  border-radius: 50px;
+  padding: 5px;
+  min-width: 120px;
+  color: white;
+  font-weight: 600;
+  -webkit-appearance: none;
+  cursor: pointer;
+  &:active,
+  &:focus {
+    background-color: peru;
+  }
+  background-color: ${props => (props.danger ? "red" : "green")};
+`;
+
+
+이런식으로 Apple을 정의하고.
+
+
+class App extends React.Component {
+  render() {
+    return (
+      <BigFrame>
+        <Apple>CLEAN</Apple>
+        <Apple danger>DANGER</Apple>
+      </BigFrame>
+    );
+  }
+}
+
+다음과같이 쓴다.
+
+Apple컴포넌트에 danger라는 props를 줬을 때, background-color: ${props => (props.danger ? "red" : "green")};
+
+다음과같이 컴포넌트에 오는정보에 담긴 danger의 내용으로 색상을 정해줄 수 있음. danger는 아무것도 없이 넘어갔으니 true임.
