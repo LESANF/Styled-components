@@ -1,36 +1,51 @@
 import React from "react";
-import styled from "styled-components";
-import "./App.css";
+import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
+import theme from "./theme";
 
-class App extends React.Component {
-  render() {
-    return (
-      <BigFrame>
-        <Apple>CLEAN</Apple>
-        <Apple danger>DANGER</Apple>
-      </BigFrame>
-    );
-  }
+const GlobalStyle = createGlobalStyle`
+body{
+  padding:0;
+  margin:0;
 }
+`;
+
+const PotatoCard = styled.div`
+  background-color: red;
+`;
+
+const Button = styled.button`
+  border-radius: 30px;
+  padding: 25px 15px;
+  background-color: ${props => props.theme.successColor};
+`;
 
 const BigFrame = styled.div`
   background-color: pink;
   height: 100vh;
+  ${PotatoCard} {
+    background-color: navy;
+  }
 `;
 
-const Apple = styled.button`
-  border-radius: 50px;
-  padding: 5px;
-  min-width: 120px;
-  color: white;
-  font-weight: 600;
-  -webkit-appearance: none;
-  cursor: pointer;
-  &:active,
-  &:focus {
-    background-color: peru;
+class App extends React.Component {
+  render() {
+    return (
+      <>
+        <ThemeProvider theme={theme}>
+          <GlobalStyle />
+          <BigFrame>
+            <PotatoForm />
+          </BigFrame>
+        </ThemeProvider>
+      </>
+    );
   }
-  background-color: ${props => (props.danger ? "red" : "green")};
-`;
+}
+
+const PotatoForm = () => (
+  <PotatoCard>
+    <Button>Hi</Button>
+  </PotatoCard>
+);
 
 export default App;

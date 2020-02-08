@@ -37,3 +37,260 @@ class App extends React.Component {
 Apple컴포넌트에 danger라는 props를 줬을 때, background-color: ${props => (props.danger ? "red" : "green")};
 
 다음과같이 컴포넌트에 오는정보에 담긴 danger의 내용으로 색상을 정해줄 수 있음. danger는 아무것도 없이 넘어갔으니 true임.
+
+=======================================================================================
+
+결과물에서 마진이 조금 생기는데 이러한 점을 해결하기위해 body를 위해 컴포넌트를 만들까 ? 답은 NO다.
+
+우린 injectGlobal을 사용할거임. styled-components에서. import styled, { injectGlobal } from "styled-components";
+
+이부분은 버젼이 바껴서 지금 적용안됨
+
+new (새로운 걸로해야함)
+
+import styled, { createGlobalStyle } from "styled-components";
+
+createGlobalStyle을 써야함.
+
+const GlobalStyle = createGlobalStyle`
+body{
+  padding:0;
+  margin:0;
+}
+`;
+
+다음과같이 선언해서 해야하고 
+
+<>
+    <GlobalStyle />
+    <BigFrame>
+          <Apple>CLEAN</Apple>
+          <Apple danger>DANGER</Apple>
+    </BigFrame>
+</>
+
+본문과 같이 넣어줘야함. fragment써야하니 잊지말기. (감싸는게아님)
+
+이제 만들어진 버튼을 앵커나 링크로 사용하는법을 알아보자.
+
+지금 선언한 button 컴포넌트를 재활용해야함. 
+
+const Potato = Apple.withComponent("a");
+
+<Potato href="http://google.com" target="blink">Google</Potato> 이렇게 쓸 수 있음.
+
+Google (앵커=a)는 현재 Apple의 css를 다가져온상태임. 여기서 또 css를 연장할 수 있음. 
+
+const Potato = styled(Apple.withComponent("a"))`
+  text-decoration: none;
+  background-color: hotpink;
+`;
+
+이렇게 styled()`` 로 감싸주고 백틱안에 css를 쓰면됨.
+
+===============================================================
+
+애니메이션 적용.
+
+import styled, { createGlobalStyle, css, keyframes } from "styled-components";
+
+css, keyframes 추가.
+
+const grape = keyframes`
+from{
+  transform : rotate(0deg);
+}
+to{
+  transform:rotate(360deg);
+}
+`;
+
+keyframes를 만들어준다. 컴포넌트로 추가할거아니니 첫글자 대문자안해도됨.
+
+const Apple = styled.button`
+  border-radius: 50px;
+  padding: 5px;
+  min-width: 120px;
+  color: white;
+  font-weight: 600;
+  -webkit-appearance: none;
+  cursor: pointer;
+  &:active,
+  &:focus {
+    background-color: peru;
+  }
+  background-color: ${props => (props.danger ? "red" : "green")};
+  ${props => {
+    if (props.danger) {
+      return css`
+        animation: ${grape} ${props.fruit}s linear infinite;
+      `;
+    }
+  }}
+`;
+
+다음은 버튼에 추가한부분임. 만약 전달 받은 prop이 danger가 있으면. 조건문을 실행하는데
+
+return할떄 ``백틱안에 animation뿐만아니라 앞에 css를 꼭붙여야함 버젼이 바뀌면서 필수가됨.
+
+animation : from ~~~ blabla지만 우린 이걸 grape에 다담아놓음.
+
+<Apple danger fruit={1}> 다음과같이 fruit={1}이라는 prop을 Apple컴포넌트에 넘겨줬음.
+
+이는 animation의 옵션인 1s,2s,3s 같은 것에도 응용할 수 있음 ${props.fruit}s로 이건 1s를 의미.
+
+====================================================================
+
+attribute에 대해 해보자.
+
+input을 하나 만들어보자.
+
+const AppleInput = styled.input.attrs({
+  required: true,
+  placeholder: "ready !!"
+})`
+  border-radius: 5px;
+`;
+
+평소다른걸 하나 볼 수 있음 attrs() 이건 attribute임.
+
+객체형태로 넣어줌 required나 placeholder같은걸
+
+그다음은 mixin에 대해 알아보자.
+
+mixin은 CSS그룹임. 내가 그룹화하고 싶은것
+
+2가지 방법이있음 다른 컴포넌트를 만들어서 확장하거나 다른 방법은 mixin을 쓰는거임 import {css} from "styled-components"; 해줘야함.
+
+const mymixin = css`` 으로 정의할 수 있음. 백틱안에 내가 그룹화하고싶은 css를 넣어둠.
+
+const mymixins = css`
+  background-color: red;
+`;
+
+mymixins로 저장했고 이걸 input에 적용시켜보자.
+
+
+const AppleInput = styled.input.attrs({
+  required: true,
+  placeholder: "ready !!"
+})`
+  border-radius: 5px;
+  ${mymixins}; <------------------ 적용시킨부분
+`;
+
+${mymixins};도되고 ;(세미콜론)을 안붙여도 작동하는데 ;을 붙이자 
+
+===========================================================================
+
+theme을 만들어보자. 색상을 지정해놓고 전체 컴포넌트에 원하는걸 적용시킬 때 사용할 수 있음. 
+
+theme.js 파일생성.
+
+const potatotheme = {
+  mainColor: "red",
+  dangerColor: "blue",
+  successColor: "peru"
+};
+
+이런식으로 색상을 정의할 수 있고 폰트사이즈나 마진, 패딩, border radius까지 모든걸 할 수 있음.
+
+사용하기위해 export default하자.
+
+class App extends React.Component {
+  render() {
+    return (
+      <>
+        <GlobalStyle />
+        <BigFrame>
+          <PotatoForm />
+        </BigFrame>
+      </>
+    );
+  }
+}
+
+const PotatoForm = () => (
+  <PotatoCard>
+    <Button>Hi</Button>
+  </PotatoCard>
+);
+
+BigFrame안에 PotatoForm이있고 Form은 PotatoCard를 보내고 그것은또 Button을 보냄.
+
+이런식으로 버튼을 넣어줬고 이제 theme을 적용시켜보자.
+
+import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
+
+ThemeProvider가 필요하기 때문에 import했고, 이제 모든 컴포넌트에 theme provider를 연결함.
+
+render() {
+    return (
+      <>
+        <ThemeProvider>
+          <GlobalStyle />
+          <BigFrame>
+            <PotatoForm />
+          </BigFrame>
+        </ThemeProvider>
+      </>
+    );
+  }
+
+ThemeProvider로 감싸주자.
+
+이제 theme을 쓸껀데 어떤 theme을 써야될까 ? => 우리는 만들어놨다 theme.js를 그래서 import theme from "./theme"; 해주자.
+
+themeprovider는 항상 theme를 찾고있다.
+
+<ThemeProvider theme={theme}> 이렇게 theme을 넣어줌 {}에들어가는 명칭은 import할때 정한 변수명 그대로임 
+
+이렇게 넣어줬다는건 ThemeProvider에 theme를 props로 전달한다는거임.
+
+import theme123으로 가져왔으면 theme={theme123}으로 넣어야함.
+
+버튼에 색상을 입혀보자.
+
+background-color: ${props => props.theme.successColor}; 이렇게 추가해주면 쓸 수 있음.
+
+props로 전달받은 걸 쓰기위해 props => 를해준거고. 우리는 ThemeProvider에게 props로 theme을 줬음.
+
+theme안에는 successColor이 들어있기때문에 props.theme.successColor로 표기한거임.
+
+==================================================================
+
+const BigFrame = styled.div`
+  background-color: pink;
+  height: 100vh;
+  ${PotatoCard} {
+    background-color: navy;
+  }
+`;
+
+이런식으로 PotatoCard에 색상을 입힐 수 있음.
+
+이건 Card에 들어있는 Button의 색상을 바꾸는거임 주의할점이 있다면 PotatoCard가 BigFrame보다 먼저선언되야함.
+
+이런걸 Nesting이라함.
+
+원래 PotatoCard는 red색상이었음. 하지만 Nesting을 통해 navy색상이 입혀지게된다.
+
+const PotatoCard = styled.div`
+  background-color: red;
+`;
+
+const Button = styled.button`
+  border-radius: 30px;
+  padding: 25px 15px;
+  background-color: ${props => props.theme.successColor};
+`;
+
+const BigFrame = styled.div`
+  background-color: pink;
+  height: 100vh;
+  ${PotatoCard} {
+    background-color: navy;
+  }
+`;
+
+이런식으로 BigFrame이 가장나중에 선언되야함. 만약 BigFrame이 PotatoCard보다 위로갈경우 에러가남.
